@@ -1,10 +1,11 @@
 # Description 
-Generate scripts with AI that execute and autocorrect. For security reasons, this is done inside a docker container.  
-Currently tuned to Python scripts.
+- Claude does not run code. This project pretends to change that.  
+- Generate scripts with AI that execute and autocorrect.  
+- For security reasons, this is done inside a docker container.  
+- Currently only used to generate Python scripts.
 
 # Settings
 - Model: Claude 3.5 Sonnet 
--  
 
 # Classes
 - ModelAssistent: chosen model to help generate code.
