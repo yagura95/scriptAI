@@ -1,0 +1,9 @@
+services:
+  sandbox:
+    build: .
+    volumes:
+      - ./src/logs:/app/logs
+      - ./src/outputs:/app/outputs
+
+
+
