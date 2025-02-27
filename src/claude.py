@@ -2,6 +2,8 @@ import anthropic
 import os
 from typing import Optional, Dict
 from pathlib import Path
+import mimetypes
+import base64
 
 class ClaudeAssistant:
     def __init__(self, 
@@ -116,6 +118,7 @@ class ClaudeAssistant:
             )
             
             content = response.content[0].text
+            filepath = "" 
             
             if file_type == 'code':
                 filepath = self.process_code_output(content, output_filename)
@@ -132,3 +135,62 @@ class ClaudeAssistant:
                 'status': 'error',
                 'error': str(e)
             }
+
+    def read_file_content(self, file_path: str) -> str:
+        """
+        Read file content and return it as text
+        """
+        try:
+            with open(file_path, 'r', encoding='utf-8') as file:
+                return file.read()
+        except Exception as e:
+            return f"Error reading file: {str(e)}"
+
+    def get_response_with_file(self, 
+                             prompt: str, 
+                             file_path: str,
+                             output_filename: str,
+                             file_type: str = "text",
+                             max_tokens: int = 1000) -> str:
+        """
+        Send a prompt along with file contents to Claude and get a response
+        """
+        try:
+            # Read the file content
+            file_content = self.read_file_content(file_path)
+            
+            # Combine prompt with file content
+            combined_prompt = f"{prompt}\n\nHere's the file content:\n\n{file_content}"
+            
+            # Create the message
+            response = self.client.messages.create(
+                model=self.model,
+                max_tokens=max_tokens,
+                messages=[{
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": combined_prompt
+                        }
+                    ]
+                }]
+            )
+            
+            content = response.content[0].text
+
+            filepath = ""
+
+            if file_type == 'code':
+                filepath = self.process_code_output(content, output_filename)
+            
+            return {
+                'response': response,
+                'status': 'success',
+                'filepath': filepath,
+                'content': content
+            }
+            
+        except Exception as e:
+            return f"Error processing request: {str(e)}"
+
